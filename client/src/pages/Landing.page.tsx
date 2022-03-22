@@ -1,4 +1,5 @@
 import { Component } from "react";
+import React from 'react'
 import styles from "../styles/Landing.module.css";
 
 // TODO: Change to class when it's needed to add setters
