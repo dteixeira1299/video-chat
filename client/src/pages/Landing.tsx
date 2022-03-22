@@ -10,7 +10,7 @@ interface LandingPageModel {
   };
 }
 
-export class Landing extends Component<{}, LandingPageModel> {
+export class LandingPage extends Component<{}, LandingPageModel> {
   constructor(props: {}) {
     super(props);
     this.state = { call: {} };
