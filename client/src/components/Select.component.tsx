@@ -1,6 +1,7 @@
-import { ChangeEvent, Component } from "react";
+import React, { ChangeEvent, Component } from "react";
 
 interface SelectComponentProps {
+  label?: string;
   value: any;
   options: SelectOption[];
   onChange(event: ChangeEvent<HTMLSelectElement>): any;
@@ -18,15 +19,22 @@ export class SelectComponent extends Component<SelectComponentProps> {
 
   render(): JSX.Element {
     return (
-      <select value={this.props.value} onChange={this.props.onChange}>
-        {this.props.options.map((option) => {
-          return (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          );
-        })}
-      </select>
+      <div>
+        <label>
+          <strong>{this.props.label}</strong>
+        </label>
+        <div>
+          <select value={this.props.value} onChange={this.props.onChange}>
+            {this.props.options.map(option => {
+              return (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              );
+            })}
+          </select>
+        </div>
+      </div>
     );
   }
 }
