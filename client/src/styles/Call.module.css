@@ -1,0 +1,17 @@
+.call-page-container {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  width: 500px;
+}
+
+.device-options-container {
+  display: grid;
+  gap: 5px;
+  grid-template-columns: auto auto auto;
+  margin-bottom: 10px;
+}
+
+.video {
+  width: 100%;
+  border: 1px solid black;
+}

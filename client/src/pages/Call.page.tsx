@@ -1,63 +1,106 @@
-import { Component, createRef, RefObject } from "react";
+import { Component, createRef, RefObject, ChangeEvent } from "react";
 import styles from "../styles/Call.module.css";
 
+interface CallPageModel {
+  videoInput?: string;
+  videoInputs: DeviceModel[];
+}
 
-export class CallPage extends Component {
-	private videoRef: RefObject<HTMLVideoElement>;
+interface DeviceModel {
+  id: string;
+  label: string;
+}
 
-	constructor(props: {}) {
-		super(props);
-		this.videoRef = createRef();
-	}
+export class CallPage extends Component<{}, CallPageModel> {
+  private videoRef: RefObject<HTMLVideoElement>;
 
-	async componentDidMount(): Promise<void> {
-		try {
-			const mediaStream = await this.getUserMedia();
-			this.startVideo(mediaStream);
-		} catch (e) {
-			console.error(e)
-		}
-	}
+  constructor(props: {}) {
+    super(props);
+    this.state = { videoInputs: [] };
+    this.videoRef = createRef();
+  }
 
-	async getUserMedia(): Promise<MediaStream> {
-		return await navigator.mediaDevices.getUserMedia({
-			video: true,
-			audio: false,
-		});
-	}
+  async componentDidMount(): Promise<void> {
+    try {
+      await this.fillInputOptions();
+      await this.startUserMedia();
+    } catch (e) {
+      console.error(e);
+    }
+  }
 
-	startVideo(stream: MediaStream): void {
-		if (this.videoRef.current) {
-			this.videoRef.current.srcObject = stream;
-		}
-	}
+  private async updateCurrentVideoInput(
+    event: ChangeEvent<HTMLSelectElement>
+  ): Promise<void> {
+    this.setState({ videoInput: event.target.value });
+    await this.startUserMedia();
+  }
 
-	render(): JSX.Element {
-		return (
-			<div>
+  private async startUserMedia(): Promise<void> {
+    const mediaStream = await this.getUserMedia();
 
-				<h1>Select sources &amp; outputs</h1>
+    if (this.videoRef.current) {
+      this.videoRef.current.srcObject = mediaStream;
+    }
+  }
 
-				<p>Get available audio, video sources and audio output devices from <code>mediaDevices.enumerateDevices()</code>
-					then set the source for <code>getUserMedia()</code> using a <code>deviceId</code> constraint.</p>
-				<p><b>Note:</b> without permission, the browser will restrict the available devices to at most one per type.</p>
+  private async fillInputOptions(): Promise<void> {
+    const devices = await this.getUserDevices();
 
-				<div>
-					<label>Audio input source: </label><select id="audioSource"></select>
-				</div>
+    devices.forEach((deviceInfo: MediaDeviceInfo) => {
+      const device = { id: deviceInfo.deviceId, label: deviceInfo.label };
 
-				<div>
-					<label>Audio output destination: </label><select id="audioOutput"></select>
-				</div>
+      if (deviceInfo.kind === "videoinput") {
+        this.setState((state) => ({
+          videoInputs: [...state.videoInputs, device],
+        }));
+      }
+    });
 
-				<div>
-					<label>Video source: </label><select id="videoSource"></select>
-				</div>
+    if (this.state.videoInputs.length) {
+      this.setState((state) => ({ videoInput: state.videoInputs[0].id }));
+    }
+  }
 
+  private async getUserDevices(): Promise<MediaDeviceInfo[]> {
+    return await navigator.mediaDevices.enumerateDevices();
+  }
 
-				<video ref={this.videoRef} playsInline autoPlay></video>
+  private async getUserMedia(): Promise<MediaStream> {
+    return await navigator.mediaDevices.getUserMedia({
+      video: {
+        deviceId: this.state.videoInput
+          ? { exact: this.state.videoInput }
+          : undefined,
+      },
+      audio: false,
+    });
+  }
 
-			</div>
-		)
-	}
+  render(): JSX.Element {
+    return (
+      <div className={styles["call-page-container"]}>
+        <div className={styles["device-options-container"]}>
+          <select
+            value={this.state.videoInput}
+            onChange={this.updateCurrentVideoInput}
+          >
+            {this.state.videoInputs.map((videoDevice) => {
+              return (
+                <option key={videoDevice.id} value={videoDevice.id}>
+                  {videoDevice.label}
+                </option>
+              );
+            })}
+          </select>
+        </div>
+        <video
+          ref={this.videoRef}
+          className={styles["video"]}
+          playsInline
+          autoPlay
+        ></video>
+      </div>
+    );
+  }
 }
