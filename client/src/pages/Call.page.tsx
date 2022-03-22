@@ -1,14 +1,10 @@
 import { Component, createRef, RefObject, ChangeEvent } from "react";
+import { SelectComponent, SelectOption } from "../components/Select.component";
 import styles from "../styles/Call.module.css";
 
 interface CallPageModel {
   videoInput?: string;
-  videoInputs: DeviceModel[];
-}
-
-interface DeviceModel {
-  id: string;
-  label: string;
+  videoInputs: SelectOption[];
 }
 
 export class CallPage extends Component<{}, CallPageModel> {
@@ -48,17 +44,20 @@ export class CallPage extends Component<{}, CallPageModel> {
     const devices = await this.getUserDevices();
 
     devices.forEach((deviceInfo: MediaDeviceInfo) => {
-      const device = { id: deviceInfo.deviceId, label: deviceInfo.label };
+      const deviceOption = {
+        value: deviceInfo.deviceId,
+        label: deviceInfo.label,
+      };
 
       if (deviceInfo.kind === "videoinput") {
         this.setState((state) => ({
-          videoInputs: [...state.videoInputs, device],
+          videoInputs: [...state.videoInputs, deviceOption],
         }));
       }
     });
 
     if (this.state.videoInputs.length) {
-      this.setState((state) => ({ videoInput: state.videoInputs[0].id }));
+      this.setState((state) => ({ videoInput: state.videoInputs[0].value }));
     }
   }
 
@@ -81,18 +80,11 @@ export class CallPage extends Component<{}, CallPageModel> {
     return (
       <div className={styles["call-page-container"]}>
         <div className={styles["device-options-container"]}>
-          <select
+          <SelectComponent
             value={this.state.videoInput}
+            options={this.state.videoInputs}
             onChange={this.updateCurrentVideoInput}
-          >
-            {this.state.videoInputs.map((videoDevice) => {
-              return (
-                <option key={videoDevice.id} value={videoDevice.id}>
-                  {videoDevice.label}
-                </option>
-              );
-            })}
-          </select>
+          ></SelectComponent>
         </div>
         <video
           ref={this.videoRef}
