@@ -26,8 +26,9 @@ export class CallPage extends Component {
 	}
 
 	startVideo(stream: MediaStream): void {
-		if (this.videoRef.current)
+		if (this.videoRef.current) {
 			this.videoRef.current.srcObject = stream;
+    }
 	}
 
 	render(): JSX.Element {
