@@ -1,7 +1,7 @@
 import { Routes, Route } from "react-router-dom";
-import { LandingPage } from "./pages/Landing";
+import { LandingPage } from "./pages/Landing.page";
+import { CallPage } from "./pages/Call.page";
 import "./App.css";
-import { CallPage } from "./pages/Call";
 
 function App() {
   return (
