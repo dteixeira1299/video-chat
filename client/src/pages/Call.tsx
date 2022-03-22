@@ -5,15 +5,15 @@ export class CallPage extends Component {
 	private videoRef: RefObject<HTMLVideoElement>;
 
 	constructor(props: {}) {
-    super(props);
-    this.videoRef = createRef();
-  }
+		super(props);
+		this.videoRef = createRef();
+	}
 
 	async componentDidMount(): Promise<void> {
 		try {
 			const mediaStream = await this.getUserMedia();
 			this.startVideo(mediaStream);
-		} catch(e) {
+		} catch (e) {
 			console.error(e)
 		}
 	}
@@ -28,13 +28,13 @@ export class CallPage extends Component {
 	startVideo(stream: MediaStream): void {
 		if (this.videoRef.current) {
 			this.videoRef.current.srcObject = stream;
-    }
+		}
 	}
 
 	render(): JSX.Element {
 		return (
 			<div>
-				<video ref={ this.videoRef } ></video>
+				<video ref={this.videoRef} playsInline autoPlay></video>
 			</div>
 		)
 	}
