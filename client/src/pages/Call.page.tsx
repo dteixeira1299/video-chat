@@ -1,6 +1,7 @@
 import React, { Component, createRef, RefObject, ChangeEvent } from "react";
 import { SelectComponent, SelectOption } from "../components/Select.component";
 import styles from "../styles/Call.module.css";
+import song from "../sounds/testCall.mp3";
 
 interface CallPageModel {
   videoInput?: string;
@@ -9,6 +10,8 @@ interface CallPageModel {
   videoInputs: SelectOption[];
   audioInputs: SelectOption[];
   audioOutputs: SelectOption[];
+  audio?: any;
+  isPlaying?: any;
 }
 
 export class CallPage extends Component<{}, CallPageModel> {
@@ -16,7 +19,7 @@ export class CallPage extends Component<{}, CallPageModel> {
 
   constructor(props: {}) {
     super(props);
-    this.state = { videoInputs: [], audioInputs: [], audioOutputs: [] };
+    this.state = { videoInputs: [], audioInputs: [], audioOutputs: [], audio: new Audio(song), isPlaying: false, };
     this.videoRef = createRef();
   }
 
@@ -118,6 +121,20 @@ export class CallPage extends Component<{}, CallPageModel> {
     });
   }
 
+  playPause = () => {
+
+    let isPlaying = this.state.isPlaying;
+
+    if (isPlaying) {
+      this.state.audio.pause();
+    } else {
+
+      this.state.audio.play();
+    }
+
+    this.setState({ isPlaying: !isPlaying });
+  };
+
   render(): JSX.Element {
     return (
       <div className={styles["call-page-container"]}>
@@ -140,6 +157,17 @@ export class CallPage extends Component<{}, CallPageModel> {
             options={this.state.audioOutputs}
             onChange={this.updateCurrentAudioOutput}
           ></SelectComponent>
+          <div>
+            <p>
+              {this.state.isPlaying ?
+                "Song is Playing" :
+                "Song is Paused"}
+            </p>
+
+            <button onClick={this.playPause}>
+              Play | Pause
+            </button>
+          </div>
         </div>
 
         <video
