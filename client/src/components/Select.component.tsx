@@ -1,4 +1,6 @@
 import React, { ChangeEvent, Component } from "react";
+import Form from "react-bootstrap/Form";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 interface SelectComponentProps {
   label?: string;
@@ -24,7 +26,7 @@ export class SelectComponent extends Component<SelectComponentProps> {
           <strong>{this.props.label}</strong>
         </label>
         <div>
-          <select value={this.props.value} onChange={this.props.onChange}>
+          <Form.Select value={this.props.value} onChange={this.props.onChange}>
             {this.props.options.map(option => {
               return (
                 <option key={option.value} value={option.value}>
@@ -32,7 +34,7 @@ export class SelectComponent extends Component<SelectComponentProps> {
                 </option>
               );
             })}
-          </select>
+          </Form.Select>
         </div>
       </div>
     );
