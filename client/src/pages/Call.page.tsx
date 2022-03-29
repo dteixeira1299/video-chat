@@ -1,11 +1,6 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Container, Row, Col, Button } from "react-bootstrap";
-import "bootstrap/dist/css/bootstrap.min.css";
-import {
-  solid,
-  regular,
-  brands
-} from "@fortawesome/fontawesome-svg-core/import.macro";
+import { Container, Row, Col } from "react-bootstrap";
+import { solid } from "@fortawesome/fontawesome-svg-core/import.macro";
 import React, { Component, createRef, RefObject, ChangeEvent } from "react";
 import { SelectComponent, SelectOption } from "../components/Select.component";
 import styles from "../styles/Call.module.css";
