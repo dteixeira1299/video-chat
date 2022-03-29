@@ -1,3 +1,9 @@
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  solid,
+  regular,
+  brands
+} from "@fortawesome/fontawesome-svg-core/import.macro";
 import React, { Component, createRef, RefObject, ChangeEvent } from "react";
 import { SelectComponent, SelectOption } from "../components/Select.component";
 import styles from "../styles/Call.module.css";
@@ -141,35 +147,48 @@ export class CallPage extends Component<{}, CallPageModel> {
 
   render(): JSX.Element {
     return (
-      <div className={styles["call-page-container"]}>
-        <div className={styles["device-options-container"]}>
-          <SelectComponent
-            label="Video Input"
-            value={this.state.videoInput}
-            options={this.state.videoInputs}
-            onChange={this.updateCurrentVideoInput}
-          ></SelectComponent>
-          <SelectComponent
-            label="Audio Input"
-            value={this.state.audioInput}
-            options={this.state.audioInputs}
-            onChange={this.updateCurrentAudioInput}
-          ></SelectComponent>
-          <SelectComponent
-            label="Audio Output"
-            value={this.state.audioOutput}
-            options={this.state.audioOutputs}
-            onChange={this.updateCurrentAudioOutput}
-          ></SelectComponent>
-        </div>
+      <div>
+        <h1 className={styles["title"]}>Choose your video and audio options</h1>
+        <hr />
 
-        <video
-          ref={this.videoRef}
-          className={styles["video"]}
-          playsInline
-          autoPlay
-        ></video>
-        <button onClick={this.toogleMicrophone}>Toogle microphone</button>
+        <div className={styles["row"]}>
+          <div className={styles["col1"]}>
+            <video
+              ref={this.videoRef}
+              className={styles["video"]}
+              playsInline
+              autoPlay
+            ></video>
+            <div className={styles["user-options"]}>
+              <button className={styles["btn"]} onClick={this.toogleMicrophone}>
+                <FontAwesomeIcon icon={solid("microphone")} />
+              </button>
+            </div>
+          </div>
+
+          <div className={styles["col2"]}>
+            <SelectComponent
+              label="Camera"
+              value={this.state.videoInput}
+              options={this.state.videoInputs}
+              onChange={this.updateCurrentVideoInput}
+            ></SelectComponent>
+            <br />
+            <SelectComponent
+              label="Audio devices"
+              value={this.state.audioOutput}
+              options={this.state.audioOutputs}
+              onChange={this.updateCurrentAudioOutput}
+            ></SelectComponent>
+            <br />
+            <SelectComponent
+              label="Microphone"
+              value={this.state.audioInput}
+              options={this.state.audioInputs}
+              onChange={this.updateCurrentAudioInput}
+            ></SelectComponent>
+          </div>
+        </div>
       </div>
     );
   }

@@ -1,4 +1,5 @@
 import React, { ChangeEvent, Component } from "react";
+import styles from "../styles/Select.module.css";
 
 interface SelectComponentProps {
   label?: string;
@@ -24,10 +25,18 @@ export class SelectComponent extends Component<SelectComponentProps> {
           <strong>{this.props.label}</strong>
         </label>
         <div>
-          <select value={this.props.value} onChange={this.props.onChange}>
+          <select
+            className={styles["select"]}
+            value={this.props.value}
+            onChange={this.props.onChange}
+          >
             {this.props.options.map(option => {
               return (
-                <option key={option.value} value={option.value}>
+                <option
+                  className={styles["option"]}
+                  key={option.value}
+                  value={option.value}
+                >
                   {option.label}
                 </option>
               );
