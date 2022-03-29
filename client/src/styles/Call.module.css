@@ -1,35 +1,24 @@
 .title {
   text-align: center;
-  font-size: 20px;
-  font-weight: bold;
 }
 
-.col1 {
-  width: 45%;
-  float: left;
-  padding: 15px;
-}
-
-.col2 {
-  width: 45%;
-  float: right;
-  padding: 15px;
-  margin-top: 50px;
+.line {
+  border: 1px solid #3f3f3f;
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
 
 .video {
   width: 100%;
-  background-color: #383838;
 }
 
-.user-options {
-  background-color: #383838;
-  padding: 10px;
+.bar-options {
   text-align: right;
 }
 
 .btn {
   border: none;
-  cursor: pointer;
-  padding: 10px;
+  background-color: rgb(56, 56, 56);
+  padding: 5px;
+  border-radius: 5px;
 }

@@ -1,4 +1,6 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Container, Row, Col, Button } from "react-bootstrap";
+import "bootstrap/dist/css/bootstrap.min.css";
 import {
   solid,
   regular,
@@ -149,46 +151,51 @@ export class CallPage extends Component<{}, CallPageModel> {
     return (
       <div>
         <h1 className={styles["title"]}>Choose your video and audio options</h1>
-        <hr />
 
-        <div className={styles["row"]}>
-          <div className={styles["col1"]}>
-            <video
-              ref={this.videoRef}
-              className={styles["video"]}
-              playsInline
-              autoPlay
-            ></video>
-            <div className={styles["user-options"]}>
-              <button className={styles["btn"]} onClick={this.toogleMicrophone}>
-                <FontAwesomeIcon icon={solid("microphone")} />
-              </button>
-            </div>
-          </div>
+        <div className={styles["line"]}></div>
 
-          <div className={styles["col2"]}>
-            <SelectComponent
-              label="Camera"
-              value={this.state.videoInput}
-              options={this.state.videoInputs}
-              onChange={this.updateCurrentVideoInput}
-            ></SelectComponent>
-            <br />
-            <SelectComponent
-              label="Audio devices"
-              value={this.state.audioOutput}
-              options={this.state.audioOutputs}
-              onChange={this.updateCurrentAudioOutput}
-            ></SelectComponent>
-            <br />
-            <SelectComponent
-              label="Microphone"
-              value={this.state.audioInput}
-              options={this.state.audioInputs}
-              onChange={this.updateCurrentAudioInput}
-            ></SelectComponent>
-          </div>
-        </div>
+        <Container>
+          <Row>
+            <Col sm={8}>
+              <video
+                ref={this.videoRef}
+                className={styles["video"]}
+                playsInline
+                autoPlay
+              ></video>
+              <div className={styles["bar-options"]}>
+                <button
+                  className={styles["btn"]}
+                  onClick={this.toogleMicrophone}
+                >
+                  <FontAwesomeIcon icon={solid("microphone")} />
+                </button>
+              </div>
+            </Col>
+            <Col sm={4}>
+              <SelectComponent
+                label="Camera"
+                value={this.state.videoInput}
+                options={this.state.videoInputs}
+                onChange={this.updateCurrentVideoInput}
+              ></SelectComponent>
+              <br />
+              <SelectComponent
+                label="Speaker"
+                value={this.state.audioOutput}
+                options={this.state.audioOutputs}
+                onChange={this.updateCurrentAudioOutput}
+              ></SelectComponent>
+              <br />
+              <SelectComponent
+                label="Microphone"
+                value={this.state.audioInput}
+                options={this.state.audioInputs}
+                onChange={this.updateCurrentAudioInput}
+              ></SelectComponent>
+            </Col>
+          </Row>
+        </Container>
       </div>
     );
   }
