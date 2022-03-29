@@ -14,7 +14,6 @@ interface CallPageModel {
 
 interface HTMLCallElement extends HTMLVideoElement {
   setSinkId(id: string): void;
-  setSinkId2(id: string): void;
 }
 
 export class CallPage extends Component<{}, CallPageModel> {
@@ -67,6 +66,13 @@ export class CallPage extends Component<{}, CallPageModel> {
     if (this.state.stream) {
       this.state.stream
         .getAudioTracks()
+        .forEach(track => (track.enabled = !track.enabled));
+    }
+  };
+  private toogleVideo = (): void => {
+    if (this.state.stream) {
+      this.state.stream
+        .getVideoTracks()
         .forEach(track => (track.enabled = !track.enabled));
     }
   };
@@ -171,6 +177,7 @@ export class CallPage extends Component<{}, CallPageModel> {
           autoPlay
         ></video>
         <button onClick={this.toogleMicrophone}>Toogle microphone</button>
+        <button onClick={this.toogleVideo}>Toogle video</button>
       </div>
     );
   }
