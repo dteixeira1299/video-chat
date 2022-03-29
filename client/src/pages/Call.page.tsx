@@ -14,6 +14,7 @@ interface CallPageModel {
 
 interface HTMLCallElement extends HTMLVideoElement {
   setSinkId(id: string): void;
+  setSinkId2(id: string): void;
 }
 
 export class CallPage extends Component<{}, CallPageModel> {
