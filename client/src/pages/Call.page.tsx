@@ -77,6 +77,13 @@ export class CallPage extends Component<{}, CallPageModel> {
         .forEach(track => (track.enabled = !track.enabled));
     }
   };
+  private toogleVideo = (): void => {
+    if (this.state.stream) {
+      this.state.stream
+        .getVideoTracks()
+        .forEach(track => (track.enabled = !track.enabled));
+    }
+  };
 
   private async startUserMedia(): Promise<void> {
     const mediaStream = await this.getUserMedia();
@@ -169,6 +176,12 @@ export class CallPage extends Component<{}, CallPageModel> {
                   onClick={this.toogleMicrophone}
                 >
                   <FontAwesomeIcon icon={solid("microphone")} />
+                </button>
+                <button
+                  className={styles["btn"]}
+                  onClick={this.toogleVideo}
+                >
+                  <FontAwesomeIcon icon={solid("camera")} />
                 </button>
               </div>
             </Col>
