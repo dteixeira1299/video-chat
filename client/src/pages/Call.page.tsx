@@ -9,6 +9,7 @@ interface CallPageModel {
   videoInputs: SelectOption[];
   audioInputs: SelectOption[];
   audioOutputs: SelectOption[];
+  stream?: MediaStream;
 }
 
 export class CallPage extends Component<{}, CallPageModel> {
@@ -50,10 +51,19 @@ export class CallPage extends Component<{}, CallPageModel> {
     await this.startUserMedia();
   };
 
+  private toogleMicrophone = (): void => {
+    if (this.state.stream) {
+      this.state.stream
+        .getAudioTracks()
+        .forEach(track => (track.enabled = !track.enabled));
+    }
+  };
+
   private async startUserMedia(): Promise<void> {
     const mediaStream = await this.getUserMedia();
 
     if (this.videoRef.current) {
+      this.setState({ stream: mediaStream });
       this.videoRef.current.srcObject = mediaStream;
     }
   }
@@ -148,6 +158,7 @@ export class CallPage extends Component<{}, CallPageModel> {
           playsInline
           autoPlay
         ></video>
+        <button onClick={this.toogleMicrophone}>Toogle microphone</button>
       </div>
     );
   }
