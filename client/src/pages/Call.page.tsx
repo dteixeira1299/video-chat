@@ -12,8 +12,12 @@ interface CallPageModel {
   stream?: MediaStream;
 }
 
+interface HTMLCallElement extends HTMLVideoElement {
+  setSinkId(id: string): void;
+}
+
 export class CallPage extends Component<{}, CallPageModel> {
-  private videoRef: RefObject<HTMLVideoElement>;
+  private videoRef: RefObject<HTMLCallElement>;
 
   constructor(props: {}) {
     super(props);
@@ -48,7 +52,14 @@ export class CallPage extends Component<{}, CallPageModel> {
     event: ChangeEvent<HTMLSelectElement>
   ): Promise<void> => {
     this.setState({ audioOutput: event.target.value });
-    await this.startUserMedia();
+
+    if (this.videoRef.current) {
+      try {
+        this.videoRef.current.setSinkId(event.target.value);
+      } catch (error) {
+        console.warn("Browser does not support output device selection.");
+      }
+    }
   };
 
   private toogleMicrophone = (): void => {
