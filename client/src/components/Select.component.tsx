@@ -6,6 +6,7 @@ interface SelectComponentProps {
   label?: string;
   value: any;
   options: SelectOption[];
+  className?: any;
   onChange(event: ChangeEvent<HTMLSelectElement>): any;
 }
 
@@ -21,7 +22,7 @@ export class SelectComponent extends Component<SelectComponentProps> {
 
   render(): JSX.Element {
     return (
-      <div>
+      <div className={this.props.className}>
         <label>
           <strong>{this.props.label}</strong>
         </label>

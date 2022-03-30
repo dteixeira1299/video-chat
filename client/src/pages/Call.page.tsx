@@ -1,5 +1,6 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Container, Row, Col } from "react-bootstrap";
+import "bootstrap/dist/css/bootstrap.min.css";
 import { solid } from "@fortawesome/fontawesome-svg-core/import.macro";
 import React, { Component, createRef, RefObject, ChangeEvent } from "react";
 import { SelectComponent, SelectOption } from "../components/Select.component";
@@ -172,10 +173,7 @@ export class CallPage extends Component<{}, CallPageModel> {
                 >
                   <FontAwesomeIcon icon={solid("microphone")} />
                 </button>
-                <button
-                  className={styles["btn"]}
-                  onClick={this.toogleVideo}
-                >
+                <button className={styles["btn"]} onClick={this.toogleVideo}>
                   <FontAwesomeIcon icon={solid("camera")} />
                 </button>
               </div>
@@ -183,20 +181,21 @@ export class CallPage extends Component<{}, CallPageModel> {
             <Col sm={4}>
               <SelectComponent
                 label="Camera"
+                className={styles["select-component"]}
                 value={this.state.videoInput}
                 options={this.state.videoInputs}
                 onChange={this.updateCurrentVideoInput}
               ></SelectComponent>
-              <br />
               <SelectComponent
                 label="Speaker"
+                className={styles["select-component"]}
                 value={this.state.audioOutput}
                 options={this.state.audioOutputs}
                 onChange={this.updateCurrentAudioOutput}
               ></SelectComponent>
-              <br />
               <SelectComponent
                 label="Microphone"
+                className={styles["select-component"]}
                 value={this.state.audioInput}
                 options={this.state.audioInputs}
                 onChange={this.updateCurrentAudioInput}
