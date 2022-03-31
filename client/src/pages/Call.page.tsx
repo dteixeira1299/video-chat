@@ -29,34 +29,37 @@ export class CallPage extends Component<{}, CallPageModel> {
     this.videoRef = createRef();
   }
 
-  async componentDidMount(): Promise<void> {
-    try {
-      await this.fillInputOptions();
-      await this.startUserMedia();
-    } catch (e) {
-      console.error(e);
-    }
-  }
-
-  private updateCurrentVideoInput = async (
-    event: ChangeEvent<HTMLSelectElement>
-  ): Promise<void> => {
-    this.setState({ videoInput: event.target.value });
-    await this.startUserMedia();
+  componentDidMount = (): void => {
+    this.getUserMedia()
+      .then(this.startUserMedia)
+      .then(this.fillInputOptions)
+      .catch((error: Error) => console.log(error));
   };
 
-  private updateCurrentAudioInput = async (
-    event: ChangeEvent<HTMLSelectElement>
-  ): Promise<void> => {
-    this.setState({ audioInput: event.target.value });
-    await this.startUserMedia();
+  private loadMedia = (): void => {
+    this.getUserMedia()
+      .then(this.startUserMedia)
+      .then(this.fillInputOptions)
+      .catch((error: Error) => console.log(error));
   };
 
-  private updateCurrentAudioOutput = async (
+  private updateCurrentVideoInput = (
     event: ChangeEvent<HTMLSelectElement>
-  ): Promise<void> => {
-    this.setState({ audioOutput: event.target.value });
+  ): void => {
+    this.setState({ videoInput: event.target.value }, this.loadMedia);
+  };
 
+  private updateCurrentAudioInput = (
+    event: ChangeEvent<HTMLSelectElement>
+  ): void => {
+    if (this.state.stream)
+      this.state.stream.getAudioTracks().forEach(track => track.stop());
+    this.setState({ audioInput: event.target.value }, this.loadMedia);
+  };
+
+  private updateCurrentAudioOutput = (
+    event: ChangeEvent<HTMLSelectElement>
+  ): void => {
     if (this.videoRef.current) {
       try {
         this.videoRef.current.setSinkId(event.target.value);
@@ -64,6 +67,7 @@ export class CallPage extends Component<{}, CallPageModel> {
         console.warn("Browser does not support output device selection.");
       }
     }
+    this.setState({ audioOutput: event.target.value }, this.loadMedia);
   };
 
   private toogleMicrophone = (): void => {
@@ -81,17 +85,20 @@ export class CallPage extends Component<{}, CallPageModel> {
     }
   };
 
-  private async startUserMedia(): Promise<void> {
-    const mediaStream = await this.getUserMedia();
-
+  private startUserMedia = (mediaStream: MediaStream): void => {
     if (this.videoRef.current) {
-      this.setState({ stream: mediaStream });
       this.videoRef.current.srcObject = mediaStream;
+      this.setState({ stream: mediaStream });
     }
-  }
+  };
 
-  private async fillInputOptions(): Promise<void> {
+  private fillInputOptions = async (): Promise<void> => {
     const devices = await this.getUserDevices();
+    this.setState(state => ({
+      videoInputs: [],
+      audioInputs: [],
+      audioOutputs: []
+    }));
 
     devices.forEach((deviceInfo: MediaDeviceInfo) => {
       const deviceOption = {
@@ -117,40 +124,31 @@ export class CallPage extends Component<{}, CallPageModel> {
         }));
       }
     });
+  };
 
-    if (this.state.videoInputs.length) {
-      this.setState(state => ({ videoInput: state.videoInputs[0].value }));
-    }
+  private getUserDevices = (): Promise<MediaDeviceInfo[]> => {
+    return navigator.mediaDevices.enumerateDevices();
+  };
 
-    if (this.state.audioInputs.length) {
-      this.setState(state => ({ audioInput: state.audioInputs[0].value }));
-    }
+  private getUserMedia = async (): Promise<MediaStream> => {
+    const hasVideo = (await this.getUserDevices()).filter(
+      device => device.kind == "videoinput"
+    );
+    const videoConstraint = this.state.videoInput
+      ? { deviceId: { exact: this.state.videoInput } }
+      : hasVideo.length > 0;
 
-    if (this.state.audioOutputs.length) {
-      this.setState(state => ({ audioOutput: state.audioOutputs[0].value }));
-    }
-  }
+    const audioConstraint = this.state.audioInput
+      ? { deviceId: { exact: this.state.audioInput } }
+      : true;
 
-  private async getUserDevices(): Promise<MediaDeviceInfo[]> {
-    return await navigator.mediaDevices.enumerateDevices();
-  }
-
-  private async getUserMedia(): Promise<MediaStream> {
-    return await navigator.mediaDevices.getUserMedia({
-      video: {
-        deviceId: this.state.videoInput
-          ? { exact: this.state.videoInput }
-          : undefined
-      },
-      audio: {
-        deviceId: this.state.audioInput
-          ? { exact: this.state.audioInput }
-          : undefined
-      }
+    return navigator.mediaDevices.getUserMedia({
+      video: videoConstraint,
+      audio: audioConstraint
     });
-  }
+  };
 
-  render(): JSX.Element {
+  render = (): JSX.Element => {
     return (
       <div>
         <h1 className={styles["title"]}>Choose your video and audio options</h1>
@@ -179,13 +177,15 @@ export class CallPage extends Component<{}, CallPageModel> {
               </div>
             </Col>
             <Col sm={4}>
-              <SelectComponent
-                label="Camera"
-                className={styles["select-component"]}
-                value={this.state.videoInput}
-                options={this.state.videoInputs}
-                onChange={this.updateCurrentVideoInput}
-              ></SelectComponent>
+              {this.state.videoInputs.length > 0 && (
+                <SelectComponent
+                  label="Camera"
+                  className={styles["select-component"]}
+                  value={this.state.videoInput}
+                  options={this.state.videoInputs}
+                  onChange={this.updateCurrentVideoInput}
+                ></SelectComponent>
+              )}
               <SelectComponent
                 label="Speaker"
                 className={styles["select-component"]}
@@ -205,5 +205,5 @@ export class CallPage extends Component<{}, CallPageModel> {
         </Container>
       </div>
     );
-  }
+  };
 }
