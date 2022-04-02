@@ -1,13 +1,15 @@
 import { Component } from "react";
-import React from 'react'
+import React, { ChangeEvent } from "react";
 import styles from "../styles/Landing.module.css";
+import Form from "react-bootstrap/Form";
+import { Container, Row, Col, Button } from "react-bootstrap";
 
 // TODO: Change to class when it's needed to add setters
 interface LandingPageModel {
   username?: string;
   call: {
-    uuid?: string;
     username?: string;
+    uuid?: string;
   };
 }
 
@@ -17,33 +19,68 @@ export class LandingPage extends Component<{}, LandingPageModel> {
     this.state = { call: {} };
   }
 
+  private updateCallUsername = (
+    event: ChangeEvent<HTMLSelectElement>
+  ): void => {
+    this.setState({ call.username: event.target.value });
+  };
+
+  private updateCallUUID = (
+    event: ChangeEvent<HTMLSelectElement>
+  ): void => {
+    this.setState({ call.uuid: event.target.value });
+  };
+
+  private EnterCall = (): void => {
+    console.log(this.state.call);
+  };
+
   render() {
     return (
-      <div className={styles["landing-page-container"]}>
-        <div className={styles["option-container"]}>
-          <input
-            type="text"
-            placeholder="Username"
-            className="m-5"
-            value={this.state.username}
-          />
-          <button className="m-5">Start Call</button>
-        </div>
-        <div className={styles["option-container"]}>
-          <input
-            type="text"
-            placeholder="Username"
-            className="m-5"
-            value={this.state.call.username}
-          />
-          <input
-            type="text"
-            placeholder="Call Id"
-            className="m-5"
-            value={this.state.call.uuid}
-          />
-          <button className="m-5">Enter Call</button>
-        </div>
+      <div>
+        <Container>
+          <Row>
+            <Col xs={6}>
+              <Form.Label htmlFor="inputUsername">Username</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Username"
+                id="inputUsername"
+                value={this.state.username}
+              />
+              <Button className="float-end mt-2" variant="dark">
+                Start Call
+              </Button>
+            </Col>
+            <Col xs={6}>
+              <Form noValidate onSubmit={this.EnterCall}>
+                <Form.Label htmlFor="inputUsername2">Username</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Username"
+                  id="inputUsername2"
+                  value={this.state.call.username}
+                  onChange={this.updateCallUsername}
+                  required
+                />
+                <Form.Label className="mt-2" htmlFor="inputCallID">
+                  Call ID
+                </Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Call ID"
+                  id="inputCallID"
+                  value={this.state.call.uuid}
+                  onChange={this.updateCallUUID}
+                  required
+                />
+                <Button type="submit" className="float-end mt-2" variant="dark">
+                  Enter Call
+                </Button>
+              </Form>
+            </Col>
+          </Row>
+        </Container>
       </div>
     );
   }

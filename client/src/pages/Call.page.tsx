@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Container, Row, Col } from "react-bootstrap";
+import { Container, Row, Col, Button } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { solid } from "@fortawesome/fontawesome-svg-core/import.macro";
 import React, { Component, createRef, RefObject, ChangeEvent } from "react";
@@ -165,22 +165,23 @@ export class CallPage extends Component<{}, CallPageModel> {
                 autoPlay
               ></video>
               <div className={styles["bar-options"]}>
-                <button
-                  className={styles["btn"]}
-                  onClick={this.toogleMicrophone}
-                >
+                <Button onClick={this.toogleMicrophone} variant="dark">
                   <FontAwesomeIcon icon={solid("microphone")} />
-                </button>
-                <button className={styles["btn"]} onClick={this.toogleVideo}>
+                </Button>
+                <Button
+                  onClick={this.toogleVideo}
+                  variant="dark"
+                  className="ms-2"
+                >
                   <FontAwesomeIcon icon={solid("camera")} />
-                </button>
+                </Button>
               </div>
             </Col>
             <Col sm={4}>
               {this.state.videoInputs.length > 0 && (
                 <SelectComponent
                   label="Camera"
-                  className={styles["select-component"]}
+                  className="mb-4"
                   value={this.state.videoInput}
                   options={this.state.videoInputs}
                   onChange={this.updateCurrentVideoInput}
@@ -188,14 +189,13 @@ export class CallPage extends Component<{}, CallPageModel> {
               )}
               <SelectComponent
                 label="Speaker"
-                className={styles["select-component"]}
+                className="mb-4"
                 value={this.state.audioOutput}
                 options={this.state.audioOutputs}
                 onChange={this.updateCurrentAudioOutput}
               ></SelectComponent>
               <SelectComponent
                 label="Microphone"
-                className={styles["select-component"]}
                 value={this.state.audioInput}
                 options={this.state.audioInputs}
                 onChange={this.updateCurrentAudioInput}
