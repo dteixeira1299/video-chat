@@ -12,7 +12,7 @@ router.post(
   async (request: TypedRequestBody<Call>, response: Response) => {
     const call = request.body;
     const savedCall = await DatabaseConnection.getRepository(Call).save(call);
-    response.status(200).json({ accessCode: hashids.encode(call.id) });
+    response.status(200).json({ accessCode: hashids.encode(savedCall.id) });
   }
 );
 

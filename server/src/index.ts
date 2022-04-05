@@ -11,6 +11,6 @@ app.use(express.json());
 app.use("/calls", callsRouter);
 
 app.listen(port, async () => {
-  // await DatabaseConnection.initialize();
+  await DatabaseConnection.initialize();
   console.log(`Server listening on port: ${port}`);
 });
