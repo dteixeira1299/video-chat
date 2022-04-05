@@ -5,11 +5,10 @@ export const DatabaseConnection = new DataSource({
   type: "mariadb",
   host: "localhost",
   port: 3306,
-  username: "root",
-  password: "root",
+  username: "chat",
+  password: "123456",
   database: "chat",
   synchronize: true,
-  logging: true,
   entities: [Call],
   migrations: [],
 });
