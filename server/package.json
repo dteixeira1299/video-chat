@@ -15,9 +15,12 @@
     "nodemon": "^2.0.15"
   },
   "dependencies": {
+    "@types/node": "^17.0.23",
     "express": "^4.17.3",
+    "hashids": "^2.2.10",
     "mysql": "^2.18.1",
     "socket.io": "^4.4.1",
-    "ts-node": "^10.7.0"
+    "ts-node": "^10.7.0",
+    "typeorm": "^0.3.4"
   }
 }
