@@ -1,12 +1,13 @@
 import React, { ChangeEvent } from "react";
 import { useState } from "react";
+import { Form, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import styles from "../styles/Landing.module.css";
 
 export const LandingPage = () => {
   const [username, setUsername] = useState<string>("");
-  const [callUUID, setCallUUID] = useState<string>();
-  const [callUsername, setCallUsername] = useState<string>();
+  const [callUUID, setCallUUID] = useState<string>("");
+  const [callUsername, setCallUsername] = useState<string>("");
 
   const navigate = useNavigate();
 
@@ -14,40 +15,60 @@ export const LandingPage = () => {
     setUsername(event.target.value);
   };
 
+  const updateCallUsername = (event: ChangeEvent<HTMLInputElement>): void => {
+    setCallUsername(event.target.value);
+  };
+
+  const updateCallUUID = (event: ChangeEvent<HTMLInputElement>): void => {
+    setCallUUID(event.target.value);
+  };
+
   const startCall = () => {
-    if (username) {
-      navigate("/call");
+    if (!username.trim()) {
+      alert("ups!");
+      return;
     }
+    navigate("/call");
+  };
+
+  const enterCall = () => {
+    if (!callUUID.trim() && !callUsername.trim()) {
+      alert("ups!");
+      return;
+    }
+    navigate("/call");
   };
 
   return (
     <div className={styles["landing-page-container"]}>
       <div className={styles["option-container"]}>
-        <input
+        <Form.Control
           type="text"
           placeholder="Username"
-          className="m-5"
           onChange={updateUsername}
           value={username}
         />
-        <button onClick={startCall} className="m-5">
+        <Button variant="dark" onClick={startCall} className="mt-4">
           Start Call
-        </button>
+        </Button>
       </div>
       <div className={styles["option-container"]}>
-        <input
+        <Form.Control
           type="text"
           placeholder="Username"
-          className="m-5"
+          onChange={updateCallUsername}
           value={callUsername}
         />
-        <input
+        <Form.Control
           type="text"
+          className="mt-4"
           placeholder="Call Id"
-          className="m-5"
+          onChange={updateCallUUID}
           value={callUUID}
         />
-        <button className="m-5">Enter Call</button>
+        <Button onClick={enterCall} variant="dark" className="mt-4">
+          Enter Call
+        </Button>
       </div>
     </div>
   );
