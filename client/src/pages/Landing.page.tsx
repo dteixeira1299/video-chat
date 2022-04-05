@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import styles from "../styles/Landing.module.css";
 
 export const LandingPage = () => {
-  const [username, setUsername] = useState<string>();
+  const [username, setUsername] = useState<string>("");
   const [callUUID, setCallUUID] = useState<string>();
   const [callUsername, setCallUsername] = useState<string>();
 
