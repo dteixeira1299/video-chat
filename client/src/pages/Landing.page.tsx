@@ -16,23 +16,26 @@ interface LandingPageModel {
 export class LandingPage extends Component<{}, LandingPageModel> {
   constructor(props: {}) {
     super(props);
-    this.state = { call: {} };
+    this.state = { call: { username: "", uuid: "" } };
   }
 
-  private updateCallUsername = (
-    event: ChangeEvent<HTMLSelectElement>
-  ): void => {
-    this.setState({ call.username: event.target.value });
+  private updateCallUsername = (event: ChangeEvent<HTMLInputElement>): void => {
+    this.setState({ call: { username: event.target.value } });
   };
 
-  private updateCallUUID = (
-    event: ChangeEvent<HTMLSelectElement>
-  ): void => {
-    this.setState({ call.uuid: event.target.value });
+  private updateCallUUID = (event: ChangeEvent<HTMLInputElement>): void => {
+    this.setState({ call: { uuid: event.target.value } });
   };
 
   private EnterCall = (): void => {
-    console.log(this.state.call);
+    alert(
+      "Username: " +
+        this.state.call.username +
+        "<br>" +
+        "UUID: " +
+        this.state.call.uuid +
+        "<br>TERMINADO"
+    );
   };
 
   render() {
@@ -53,13 +56,13 @@ export class LandingPage extends Component<{}, LandingPageModel> {
               </Button>
             </Col>
             <Col xs={6}>
-              <Form noValidate onSubmit={this.EnterCall}>
+              <Form onSubmit={this.EnterCall} action="Call">
                 <Form.Label htmlFor="inputUsername2">Username</Form.Label>
                 <Form.Control
                   type="text"
                   placeholder="Username"
                   id="inputUsername2"
-                  value={this.state.call.username}
+                  value={this.state.call.username || ""}
                   onChange={this.updateCallUsername}
                   required
                 />
@@ -70,7 +73,7 @@ export class LandingPage extends Component<{}, LandingPageModel> {
                   type="text"
                   placeholder="Call ID"
                   id="inputCallID"
-                  value={this.state.call.uuid}
+                  value={this.state.call.uuid || ""}
                   onChange={this.updateCallUUID}
                   required
                 />
