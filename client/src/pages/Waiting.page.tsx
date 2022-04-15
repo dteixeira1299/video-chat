@@ -6,7 +6,7 @@ import React, { Component, createRef, RefObject, ChangeEvent } from "react";
 import { SelectComponent, SelectOption } from "../components/Select.component";
 import styles from "../styles/Call.module.css";
 
-interface CallPageModel {
+interface WaitingPageModel {
   videoInput?: string;
   audioInput?: string;
   audioOutput?: string;
@@ -20,7 +20,7 @@ interface HTMLCallElement extends HTMLVideoElement {
   setSinkId(id: string): void;
 }
 
-export class CallPage extends Component<{}, CallPageModel> {
+export class WaitingPage extends Component<{}, WaitingPageModel> {
   private videoRef: RefObject<HTMLCallElement>;
 
   constructor(props: {}) {
