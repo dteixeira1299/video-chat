@@ -1,6 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import { LandingPage } from "./pages/Landing.page";
-import { CallPage } from "./pages/Call.page";
+import { WaitingPage } from "./pages/Waiting.page";
 import React from "react";
 import "./App.css";
 
@@ -8,7 +8,7 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
-      <Route path="/call" element={<CallPage />} />
+      <Route path="/waiting/:code" element={<WaitingPage />} />
     </Routes>
   );
 }
