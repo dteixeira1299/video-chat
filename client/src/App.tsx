@@ -8,7 +8,7 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
-      <Route path="/call" element={<CallPage />} />
+      <Route path="/waiting/:code" element={<CallPage />} />
     </Routes>
   );
 }

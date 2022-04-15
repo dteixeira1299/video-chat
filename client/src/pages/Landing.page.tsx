@@ -23,19 +23,18 @@ export const LandingPage = () => {
     setCallUUID(event.target.value);
   };
 
-  const startCall = () => {
-    if (!username.trim()) {
-      alert("ups!");
-      return;
-    }
-    navigate("/call");
+  const startCall = async () => {
+    const response = await fetch("http://localhost:3000/calls", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({})
+    });
+    const callInfo: { accessCode: string } = await response.json();
+    navigate("/waiting/" + callInfo.accessCode);
   };
 
+  // TODO: Implement http request to validate call code before redirecting to waiting page
   const enterCall = () => {
-    if (!callUUID.trim() && !callUsername.trim()) {
-      alert("ups!");
-      return;
-    }
     navigate("/call");
   };
 
@@ -48,7 +47,12 @@ export const LandingPage = () => {
           onChange={updateUsername}
           value={username}
         />
-        <Button variant="dark" onClick={startCall} className="mt-4">
+        <Button
+          variant="dark"
+          onClick={startCall}
+          className="mt-4"
+          disabled={!username}
+        >
           Start Call
         </Button>
       </div>
@@ -66,7 +70,12 @@ export const LandingPage = () => {
           onChange={updateCallUUID}
           value={callUUID}
         />
-        <Button onClick={enterCall} variant="dark" className="mt-4">
+        <Button
+          onClick={enterCall}
+          variant="dark"
+          className="mt-4"
+          disabled={!callUsername || !callUUID}
+        >
           Enter Call
         </Button>
       </div>
