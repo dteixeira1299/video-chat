@@ -24,6 +24,7 @@ export const LandingPage = () => {
   };
 
   const startCall = async () => {
+    // TODO: Change to use ENV vars to get url
     const response = await fetch("http://localhost:3000/calls", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
