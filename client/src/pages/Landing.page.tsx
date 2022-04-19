@@ -36,10 +36,10 @@ export const LandingPage = () => {
 
   const enterCall = () => {
     fetch("http://localhost:3000/calls/" + callUUID, {
-      method: "GET",
+      method: "GET"
     })
-    .then(() =>  navigate("/waiting/" + callUUID))
-    .catch(() => alert("Call ID não encontrado"));
+      .then(() => navigate("/waiting/" + callUUID))
+      .catch(() => alert("Call ID não encontrado"));
   };
 
   return (
