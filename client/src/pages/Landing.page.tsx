@@ -36,7 +36,7 @@ export const LandingPage = () => {
 
   // TODO: Implement http request to validate call code before redirecting to waiting page
   const enterCall = () => {
-    navigate("/call");
+    navigate("/waiting");
   };
 
   return (
