@@ -34,9 +34,12 @@ export const LandingPage = () => {
     navigate("/waiting/" + callInfo.accessCode);
   };
 
-  // TODO: Implement http request to validate call code before redirecting to waiting page
   const enterCall = () => {
-    navigate("/call");
+    fetch("http://localhost:3000/calls/" + callUUID, {
+      method: "GET",
+    })
+    .then(() =>  navigate("/waiting/" + callUUID))
+    .catch(() => alert("Call ID não encontrado"));
   };
 
   return (
