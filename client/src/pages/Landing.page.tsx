@@ -1,8 +1,9 @@
-import React, { ChangeEvent } from "react";
+import React, { ChangeEvent, useEffect } from "react";
 import { useState } from "react";
 import { Form, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import styles from "../styles/Landing.module.css";
+import { updateSessionStorage } from "../utils/session-storage";
 
 export const LandingPage = () => {
   const [username, setUsername] = useState<string>("");
@@ -41,6 +42,14 @@ export const LandingPage = () => {
       .then(() => navigate("/waiting/" + callUUID))
       .catch(() => alert("Call ID não encontrado"));
   };
+
+  useEffect(() => {
+    updateSessionStorage("username", username);
+  }, [username]);
+
+  useEffect(() => {
+    updateSessionStorage("username", callUsername);
+  }, [callUsername]);
 
   return (
     <div className={styles["landing-page-container"]}>
