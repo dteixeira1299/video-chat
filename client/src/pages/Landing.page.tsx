@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Form, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import styles from "../styles/Landing.module.css";
+import { updateSessionStorage } from "../utils/session-storage";
 
 export const LandingPage = () => {
   const [username, setUsername] = useState<string>("");
@@ -41,12 +42,12 @@ export const LandingPage = () => {
       .then(() => navigate("/waiting/" + callUUID))
       .catch(() => alert("Call ID não encontrado"));
   };
-  
+
   // Não apagar, hooks do react executados quando é username é modificado
   useEffect(() => {
     updateSessionStorage("username", username);
   }, [username]);
-  
+
   // Não apagar, hooks do react executados quando é username é modificado
   useEffect(() => {
     updateSessionStorage("username", callUsername);
