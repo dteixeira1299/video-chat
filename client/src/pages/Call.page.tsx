@@ -45,7 +45,7 @@ export class CallPage extends Component<{}, CallPageModel> {
     );
 
     return navigator.mediaDevices.getUserMedia({
-      video: true,
+      video: hasVideo,
       audio: true
     });
   };
