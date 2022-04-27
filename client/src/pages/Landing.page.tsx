@@ -1,9 +1,8 @@
-import React, { ChangeEvent, useEffect } from "react";
+import React, { ChangeEvent } from "react";
 import { useState } from "react";
 import { Form, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import styles from "../styles/Landing.module.css";
-import { updateSessionStorage } from "../utils/session-storage";
 
 export const LandingPage = () => {
   const [username, setUsername] = useState<string>("");
@@ -26,7 +25,7 @@ export const LandingPage = () => {
 
   const startCall = async () => {
     // TODO: Change to use ENV vars to get url
-    const response = await fetch("http://localhost:3000/calls", {
+    const response = await fetch(process.env.REACT_APP_API_URL + "/calls/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({})
@@ -36,20 +35,12 @@ export const LandingPage = () => {
   };
 
   const enterCall = () => {
-    fetch("http://localhost:3000/calls/" + callUUID, {
+    fetch(process.env.REACT_APP_API_URL + "/calls/" + callUUID, {
       method: "GET"
     })
       .then(() => navigate("/waiting/" + callUUID))
       .catch(() => alert("Call ID não encontrado"));
   };
-
-  useEffect(() => {
-    updateSessionStorage("username", username);
-  }, [username]);
-
-  useEffect(() => {
-    updateSessionStorage("username", callUsername);
-  }, [callUsername]);
 
   return (
     <div className={styles["landing-page-container"]}>
