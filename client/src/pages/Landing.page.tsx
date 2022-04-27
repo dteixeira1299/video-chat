@@ -26,7 +26,7 @@ export const LandingPage = () => {
 
   const startCall = async () => {
     // TODO: Change to use ENV vars to get url
-    const response = await fetch("http://localhost:3000/calls", {
+    const response = await fetch(process.env.REACT_APP_API_URL + "/calls/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({})
@@ -36,17 +36,19 @@ export const LandingPage = () => {
   };
 
   const enterCall = () => {
-    fetch("http://localhost:3000/calls/" + callUUID, {
+    fetch(process.env.REACT_APP_API_URL + "/calls/" + callUUID, {
       method: "GET"
     })
       .then(() => navigate("/waiting/" + callUUID))
       .catch(() => alert("Call ID não encontrado"));
   };
 
+  // Não apagar, hooks do react executados quando é username é modificado
   useEffect(() => {
     updateSessionStorage("username", username);
   }, [username]);
 
+  // Não apagar, hooks do react executados quando é username é modificado
   useEffect(() => {
     updateSessionStorage("username", callUsername);
   }, [callUsername]);
