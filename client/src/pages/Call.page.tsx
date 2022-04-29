@@ -1,48 +1,56 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Container, Row, Col } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { solid } from "@fortawesome/fontawesome-svg-core/import.macro";
-import React, { Component, createRef, RefObject, ChangeEvent } from "react";
-import { SelectComponent, SelectOption } from "../components/Select.component";
+import { Button } from "react-bootstrap";
+import React, { useState, useRef, useEffect } from "react";
 import styles from "../styles/Call.module.css";
+import { useNavigate } from "react-router-dom";
 
-interface CallPageModel {
-  stream?: MediaStream;
-}
+export const CallPage = () => {
+  const [stream, setStream] = useState<MediaStream>();
+  const videoRef = useRef<any>();
+  const navigate = useNavigate();
 
-interface HTMLCallElement extends HTMLVideoElement {
-  setSinkId(id: string): void;
-}
-
-export class CallPage extends Component<{}, CallPageModel> {
-  private videoRef: RefObject<HTMLCallElement>;
-
-  constructor(props: {}) {
-    super(props);
-    this.videoRef = createRef();
-  }
-
-  componentDidMount = (): void => {
-    this.getUserMedia()
-      .then(this.startUserMedia)
+  useEffect(() => {
+    getUserMedia()
+      .then(startUserMedia)
       .catch((error: Error) => console.log(error));
-  };
+  }, []);
 
-  private startUserMedia = (mediaStream: MediaStream): void => {
-    if (this.videoRef.current) {
-      this.videoRef.current.srcObject = mediaStream;
-      this.setState({ stream: mediaStream });
+  const toogleMicrophone = (): void => {
+    if (stream) {
+      stream
+        .getAudioTracks()
+        .forEach(track => (track.enabled = !track.enabled));
     }
   };
 
-  private getUserDevices = (): Promise<MediaDeviceInfo[]> => {
+  //TO DO - FAZER PEDIDO AO ENDPOINT PARA TERMINAR A CALL E TERMINAR CONEXÃO DE WEBSOCKETS
+  const endCall = (): void => {
+    navigate("/");
+  };
+
+  const toogleVideo = (): void => {
+    if (stream) {
+      stream
+        .getVideoTracks()
+        .forEach(track => (track.enabled = !track.enabled));
+    }
+  };
+
+  const startUserMedia = (mediaStream: MediaStream): void => {
+    if (videoRef.current) {
+      videoRef.current.srcObject = mediaStream;
+      setStream(mediaStream);
+    }
+  };
+
+  const getUserDevices = (): Promise<MediaDeviceInfo[]> => {
     return navigator.mediaDevices.enumerateDevices();
   };
 
-  private getUserMedia = async (): Promise<MediaStream> => {
-    const hasVideo = (await this.getUserDevices()).filter(
-      device => device.kind == "videoinput"
-    );
+  const getUserMedia = async (): Promise<MediaStream> => {
+    const hasVideo =
+      (await getUserDevices()).filter(device => device.kind == "videoinput")
+        .length > 0;
 
     return navigator.mediaDevices.getUserMedia({
       video: hasVideo,
@@ -50,16 +58,31 @@ export class CallPage extends Component<{}, CallPageModel> {
     });
   };
 
-  render = (): JSX.Element => {
-    return (
+  return (
+    <div className={styles["main-container"]}>
       <div className={styles["video-container"]}>
         <video
-          ref={this.videoRef}
+          ref={videoRef}
           className={styles["video"]}
           playsInline
           autoPlay
         ></video>
       </div>
-    );
-  };
-}
+      <div>
+        <Button
+          onClick={toogleMicrophone}
+          variant="outline-primary"
+          className="mt-4"
+        >
+          Disable Mic
+        </Button>
+        <Button onClick={toogleVideo} variant="dark" className="mt-4">
+          Disable Cam
+        </Button>
+        <Button onClick={endCall} variant="dark" className="mt-4">
+          End Call
+        </Button>
+      </div>
+    </div>
+  );
+};
