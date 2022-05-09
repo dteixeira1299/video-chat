@@ -3,66 +3,47 @@ import { Button } from "react-bootstrap";
 import React, { useState, useRef, useEffect } from "react";
 import styles from "../styles/Call.module.css";
 import { useNavigate } from "react-router-dom";
+import {
+  getUserStream,
+  HTMLVideoElementWithCaptureStream,
+  toogleAudioInput,
+  toogleVideo
+} from "../utils/devices";
+import { Socket } from "socket.io-client";
 
 export const CallPage = () => {
-  const [stream, setStream] = useState<MediaStream>();
-  const videoRef = useRef<any>();
   const navigate = useNavigate();
+  const socketRef = useRef<Socket>();
+  const peerConnectionRef = useRef<RTCPeerConnection>();
+  const localVideoRef = useRef<HTMLVideoElementWithCaptureStream>(null);
+  const remoteVideoRef = useRef<HTMLVideoElement>(null);
 
-  useEffect(() => {
-    getUserMedia()
-      .then(startUserMedia)
-      .catch((error: Error) => console.log(error));
-  }, []);
-
-  const toogleMicrophone = (): void => {
-    if (stream) {
-      stream
-        .getAudioTracks()
-        .forEach(track => (track.enabled = !track.enabled));
-    }
-  };
+  useEffect(() => {}, []);
 
   //TO DO - FAZER PEDIDO AO ENDPOINT PARA TERMINAR A CALL E TERMINAR CONEXÃO DE WEBSOCKETS
   const endCall = (): void => {
     navigate("/");
   };
 
-  const toogleVideo = (): void => {
-    if (stream) {
-      stream
-        .getVideoTracks()
-        .forEach(track => (track.enabled = !track.enabled));
+  const toogleAudioInputLocal = (): void => {
+    if (localVideoRef.current) {
+      const stream = localVideoRef.current.captureStream();
+      toogleAudioInput(stream);
     }
   };
 
-  const startUserMedia = (mediaStream: MediaStream): void => {
-    if (videoRef.current) {
-      videoRef.current.srcObject = mediaStream;
-      setStream(mediaStream);
+  const toogleVideoLocal = (): void => {
+    if (localVideoRef.current) {
+      const stream = localVideoRef.current.captureStream();
+      toogleVideo(stream);
     }
-  };
-
-  const getUserDevices = (): Promise<MediaDeviceInfo[]> => {
-    return navigator.mediaDevices.enumerateDevices();
-  };
-
-  const getUserMedia = async (): Promise<MediaStream> => {
-    const hasVideo =
-      (await getUserDevices()).filter(device => device.kind == "videoinput")
-        .length > 0;
-
-    return navigator.mediaDevices.getUserMedia({
-      video: hasVideo,
-      audio: true
-    });
   };
 
   return (
     <div className={styles["main-container"]}>
       <div className={styles["video-container"]}>
         <video
-          ref={videoRef}
+          ref={remoteVideoRef}
           className={styles["video"]}
           playsInline
           autoPlay
@@ -70,13 +51,13 @@ export const CallPage = () => {
       </div>
       <div>
         <Button
-          onClick={toogleMicrophone}
+          onClick={toogleAudioInputLocal}
           variant="outline-primary"
           className="mt-4"
         >
           Disable Mic
         </Button>
-        <Button onClick={toogleVideo} variant="dark" className="mt-4">
+        <Button onClick={toogleVideoLocal} variant="dark" className="mt-4">
           Disable Cam
         </Button>
         <Button onClick={endCall} variant="dark" className="mt-4">
