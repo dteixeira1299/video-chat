@@ -23,6 +23,7 @@ export const CallPage = () => {
   useEffect(() => {
     socketRef.current = connect(`${process.env.REACT_APP_API_URL}`);
     peerConnectionRef.current = createNewRTCPeerConnection();
+    console.log(peerConnectionRef.current);
 
     socketRef.current.on("room:joined", async () => {
       if (peerConnectionRef.current && socketRef.current) {
@@ -33,7 +34,7 @@ export const CallPage = () => {
         await peerConnectionRef.current.setLocalDescription(
           new RTCSessionDescription(offer)
         );
-        socketRef.current.emit("candidate:offer", offer);
+        socketRef.current.emit("candidate:offer", { roomId, offer });
       }
     });
 
@@ -56,16 +57,16 @@ export const CallPage = () => {
             new RTCSessionDescription(offer)
           );
 
-          const localOffer = await peerConnectionRef.current.createAnswer({
+          const answer = await peerConnectionRef.current.createAnswer({
             offerToReceiveVideo: true,
             offerToReceiveAudio: true
           });
 
           await peerConnectionRef.current.setLocalDescription(
-            new RTCSessionDescription(localOffer)
+            new RTCSessionDescription(answer)
           );
 
-          socketRef.current.emit("candidate:answer", localOffer);
+          socketRef.current.emit("candidate:answer", { roomId, answer });
         }
       }
     );
@@ -83,8 +84,10 @@ export const CallPage = () => {
 
     startUserMedia();
 
-    if (socketRef.current) socketRef.current.disconnect();
-    if (peerConnectionRef.current) peerConnectionRef.current.close();
+    return () => {
+      if (socketRef.current) socketRef.current.disconnect();
+      if (peerConnectionRef.current) peerConnectionRef.current.close();
+    };
   }, []);
 
   const startUserMedia = async (): Promise<void> => {
@@ -93,12 +96,6 @@ export const CallPage = () => {
       if (localVideoRef.current) localVideoRef.current.srcObject = stream;
 
       if (peerConnectionRef.current && socketRef.current) {
-        stream.getTracks().forEach(track => {
-          if (peerConnectionRef.current) {
-            peerConnectionRef.current.addTrack(track, stream);
-          }
-        });
-
         peerConnectionRef.current.onicecandidate = (
           event: RTCPeerConnectionIceEvent
         ) => {
@@ -115,6 +112,12 @@ export const CallPage = () => {
             remoteVideoRef.current.srcObject = ev.streams[0];
           }
         };
+
+        stream.getTracks().forEach(track => {
+          if (peerConnectionRef.current) {
+            peerConnectionRef.current.addTrack(track, stream);
+          }
+        });
 
         socketRef.current.emit("room:join", { roomId });
       }
