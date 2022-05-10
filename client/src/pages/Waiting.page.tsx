@@ -5,6 +5,7 @@ import { solid } from "@fortawesome/fontawesome-svg-core/import.macro";
 import React, { Component, createRef, RefObject, ChangeEvent } from "react";
 import { SelectComponent, SelectOption } from "../components/Select.component";
 import styles from "../styles/Call.module.css";
+import { getUserDevices, getUserStream } from "../utils/devices";
 
 interface WaitingPageModel {
   videoInput?: string;
@@ -30,14 +31,11 @@ export class WaitingPage extends Component<{}, WaitingPageModel> {
   }
 
   componentDidMount = (): void => {
-    this.getUserMedia()
-      .then(this.startUserMedia)
-      .then(this.fillInputOptions)
-      .catch((error: Error) => console.log(error));
+    this.loadMedia();
   };
 
   private loadMedia = (): void => {
-    this.getUserMedia()
+    getUserStream(this.state.videoInput, this.state.audioInput)
       .then(this.startUserMedia)
       .then(this.fillInputOptions)
       .catch((error: Error) => console.log(error));
@@ -93,7 +91,7 @@ export class WaitingPage extends Component<{}, WaitingPageModel> {
   };
 
   private fillInputOptions = async (): Promise<void> => {
-    const devices = await this.getUserDevices();
+    const devices = await getUserDevices();
     this.setState(state => ({
       videoInputs: [],
       audioInputs: [],
@@ -123,28 +121,6 @@ export class WaitingPage extends Component<{}, WaitingPageModel> {
           audioOutputs: [...state.audioOutputs, deviceOption]
         }));
       }
-    });
-  };
-
-  private getUserDevices = (): Promise<MediaDeviceInfo[]> => {
-    return navigator.mediaDevices.enumerateDevices();
-  };
-
-  private getUserMedia = async (): Promise<MediaStream> => {
-    const hasVideo = (await this.getUserDevices()).filter(
-      device => device.kind == "videoinput"
-    );
-    const videoConstraint = this.state.videoInput
-      ? { deviceId: { exact: this.state.videoInput } }
-      : hasVideo.length > 0;
-
-    const audioConstraint = this.state.audioInput
-      ? { deviceId: { exact: this.state.audioInput } }
-      : true;
-
-    return navigator.mediaDevices.getUserMedia({
-      video: videoConstraint,
-      audio: audioConstraint
     });
   };
 

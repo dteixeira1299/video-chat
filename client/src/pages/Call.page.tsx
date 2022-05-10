@@ -1,68 +1,149 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Button } from "react-bootstrap";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useRef, useEffect } from "react";
 import styles from "../styles/Call.module.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { Socket, connect } from "socket.io-client";
+import { createNewRTCPeerConnection } from "../utils/rtc-connection";
+import {
+  getUserStream,
+  HTMLVideoElementWithCaptureStream,
+  toogleAudioInput,
+  toogleVideo
+} from "../utils/devices";
 
 export const CallPage = () => {
-  const [stream, setStream] = useState<MediaStream>();
-  const videoRef = useRef<any>();
+  const { roomId } = useParams();
   const navigate = useNavigate();
+  const socketRef = useRef<Socket>();
+  const peerConnectionRef = useRef<RTCPeerConnection>();
+  const localVideoRef = useRef<HTMLVideoElementWithCaptureStream>(null);
+  const remoteVideoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    getUserMedia()
-      .then(startUserMedia)
-      .catch((error: Error) => console.log(error));
+    socketRef.current = connect(`${process.env.REACT_APP_API_URL}`);
+    peerConnectionRef.current = createNewRTCPeerConnection();
+
+    socketRef.current.on("room:joined", async () => {
+      if (peerConnectionRef.current && socketRef.current) {
+        const offer = await peerConnectionRef.current.createOffer({
+          offerToReceiveAudio: true,
+          offerToReceiveVideo: true
+        });
+        await peerConnectionRef.current.setLocalDescription(
+          new RTCSessionDescription(offer)
+        );
+        socketRef.current.emit("candidate:offer", { roomId, offer });
+      }
+    });
+
+    socketRef.current.on(
+      "candidate:joined",
+      async (candidate: RTCIceCandidateInit) => {
+        if (peerConnectionRef.current) {
+          await peerConnectionRef.current.addIceCandidate(
+            new RTCIceCandidate(candidate)
+          );
+        }
+      }
+    );
+
+    socketRef.current.on(
+      "candidate:offer:made",
+      async (offer: RTCSessionDescription) => {
+        if (peerConnectionRef.current && socketRef.current) {
+          await peerConnectionRef.current.setRemoteDescription(
+            new RTCSessionDescription(offer)
+          );
+
+          const answer = await peerConnectionRef.current.createAnswer({
+            offerToReceiveVideo: true,
+            offerToReceiveAudio: true
+          });
+
+          await peerConnectionRef.current.setLocalDescription(
+            new RTCSessionDescription(answer)
+          );
+
+          socketRef.current.emit("candidate:answer", { roomId, answer });
+        }
+      }
+    );
+
+    socketRef.current.on(
+      "candidate:answer:made",
+      async (answer: RTCSessionDescription) => {
+        if (peerConnectionRef.current) {
+          peerConnectionRef.current.setRemoteDescription(
+            new RTCSessionDescription(answer)
+          );
+        }
+      }
+    );
+
+    startUserMedia();
+
+    return () => {
+      if (socketRef.current) socketRef.current.disconnect();
+      if (peerConnectionRef.current) peerConnectionRef.current.close();
+    };
   }, []);
 
-  const toogleMicrophone = (): void => {
-    if (stream) {
-      stream
-        .getAudioTracks()
-        .forEach(track => (track.enabled = !track.enabled));
+  const startUserMedia = async (): Promise<void> => {
+    try {
+      const stream = await getUserStream();
+      if (localVideoRef.current) localVideoRef.current.srcObject = stream;
+
+      if (peerConnectionRef.current && socketRef.current) {
+        peerConnectionRef.current.onicecandidate = (
+          event: RTCPeerConnectionIceEvent
+        ) => {
+          if (event.candidate) {
+            if (socketRef.current) {
+              const candidate = event.candidate;
+              socketRef.current.emit("candidate:new", { roomId, candidate });
+            }
+          }
+        };
+
+        peerConnectionRef.current.ontrack = (ev: RTCTrackEvent) => {
+          if (remoteVideoRef.current) {
+            remoteVideoRef.current.srcObject = ev.streams[0];
+          }
+        };
+
+        stream.getTracks().forEach(track => {
+          if (peerConnectionRef.current) {
+            peerConnectionRef.current.addTrack(track, stream);
+          }
+        });
+
+        socketRef.current.emit("room:join", { roomId });
+      }
+    } catch (exception) {
+      console.error(exception);
     }
   };
 
-  //TO DO - FAZER PEDIDO AO ENDPOINT PARA TERMINAR A CALL E TERMINAR CONEXÃO DE WEBSOCKETS
-  const endCall = (): void => {
-    navigate("/");
-  };
-
-  const toogleVideo = (): void => {
-    if (stream) {
-      stream
-        .getVideoTracks()
-        .forEach(track => (track.enabled = !track.enabled));
+  const toogleAudioInputLocal = (): void => {
+    if (localVideoRef.current) {
+      const stream = localVideoRef.current.captureStream();
+      toogleAudioInput(stream);
     }
   };
 
-  const startUserMedia = (mediaStream: MediaStream): void => {
-    if (videoRef.current) {
-      videoRef.current.srcObject = mediaStream;
-      setStream(mediaStream);
+  const toogleVideoLocal = (): void => {
+    if (localVideoRef.current) {
+      const stream = localVideoRef.current.captureStream();
+      toogleVideo(stream);
     }
-  };
-
-  const getUserDevices = (): Promise<MediaDeviceInfo[]> => {
-    return navigator.mediaDevices.enumerateDevices();
-  };
-
-  const getUserMedia = async (): Promise<MediaStream> => {
-    const hasVideo =
-      (await getUserDevices()).filter(device => device.kind == "videoinput")
-        .length > 0;
-
-    return navigator.mediaDevices.getUserMedia({
-      video: hasVideo,
-      audio: true
-    });
   };
 
   return (
     <div className={styles["main-container"]}>
       <div className={styles["video-container"]}>
         <video
-          ref={videoRef}
+          ref={remoteVideoRef}
           className={styles["video"]}
           playsInline
           autoPlay
@@ -70,16 +151,22 @@ export const CallPage = () => {
       </div>
       <div>
         <Button
-          onClick={toogleMicrophone}
+          onClick={toogleAudioInputLocal}
           variant="outline-primary"
           className="mt-4"
         >
           Disable Mic
         </Button>
-        <Button onClick={toogleVideo} variant="dark" className="mt-4">
+        <Button onClick={toogleVideoLocal} variant="dark" className="mt-4">
           Disable Cam
         </Button>
-        <Button onClick={endCall} variant="dark" className="mt-4">
+        <Button
+          onClick={() => {
+            navigate("/");
+          }}
+          variant="dark"
+          className="mt-4"
+        >
           End Call
         </Button>
       </div>
