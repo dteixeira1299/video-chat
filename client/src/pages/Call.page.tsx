@@ -21,7 +21,7 @@ export const CallPage = () => {
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    socketRef.current = connect(`${process.env.REACT_APP_API_URL}`);
+    socketRef.current = connect(`https://10.0.0.206`);
     peerConnectionRef.current = createNewRTCPeerConnection();
 
     socketRef.current.on("room:joined", async () => {
