@@ -126,16 +126,26 @@ export const CallPage = () => {
   };
 
   const toogleAudioInputLocal = (): void => {
-    if (localVideoRef.current) {
-      const stream = localVideoRef.current.captureStream();
-      toogleAudioInput(stream);
+    if (peerConnectionRef.current) {
+      peerConnectionRef.current.getSenders().forEach(sender => {
+        if (sender.track) {
+          if (sender.track.kind == "audioinput") {
+            sender.track.enabled = !sender.track.enabled;
+          }
+        }
+      });
     }
   };
 
   const toogleVideoLocal = (): void => {
-    if (localVideoRef.current) {
-      const stream = localVideoRef.current.captureStream();
-      toogleVideo(stream);
+    if (peerConnectionRef.current) {
+      peerConnectionRef.current.getSenders().forEach(sender => {
+        if (sender.track) {
+          if (sender.track.kind == "videoinput") {
+            sender.track.enabled = !sender.track.enabled;
+          }
+        }
+      });
     }
   };
 
