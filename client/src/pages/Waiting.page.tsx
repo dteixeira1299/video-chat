@@ -1,102 +1,93 @@
+import React, { useEffect, useState, ChangeEvent } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Container, Row, Col } from "react-bootstrap";
+import { useRef } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { solid } from "@fortawesome/fontawesome-svg-core/import.macro";
-import React, { Component, createRef, RefObject, ChangeEvent } from "react";
-import { SelectComponent, SelectOption } from "../components/Select.component";
 import styles from "../styles/Call.module.css";
+import { SelectComponent, SelectOption } from "../components/Select.component";
 import { getUserDevices, getUserStream } from "../utils/devices";
-
-interface WaitingPageModel {
-  videoInput?: string;
-  audioInput?: string;
-  audioOutput?: string;
-  videoInputs: SelectOption[];
-  audioInputs: SelectOption[];
-  audioOutputs: SelectOption[];
-  stream?: MediaStream;
-}
 
 interface HTMLCallElement extends HTMLVideoElement {
   setSinkId(id: string): void;
 }
 
-export class WaitingPage extends Component<{}, WaitingPageModel> {
-  private videoRef: RefObject<HTMLCallElement>;
+export const WaitingPage = () => {
+  const [videoInput, setVideoInput] = useState<string>("");
+  const [audioInput, setAudioInput] = useState<string>("");
+  const [audioOutput, setAudioOutput] = useState<string>("");
+  const [videoInputs, setVideoInputs] = useState<Array<any>>([]);
+  const [audioInputs, setAudioInputs] = useState<Array<any>>([]);
+  const [audioOutputs, setAudioOutputs] = useState<Array<any>>([]);
+  const localVideoRef = useRef<HTMLCallElement>(null);
+  const streamRef = useRef<MediaStream>();
 
-  constructor(props: {}) {
-    super(props);
-    this.state = { videoInputs: [], audioInputs: [], audioOutputs: [] };
-    this.videoRef = createRef();
-  }
+  useEffect(() => {
+    loadMedia();
+  }, []);
 
-  componentDidMount = (): void => {
-    this.loadMedia();
-  };
-
-  private loadMedia = (): void => {
-    getUserStream(this.state.videoInput, this.state.audioInput)
-      .then(this.startUserMedia)
-      .then(this.fillInputOptions)
+  const loadMedia = (): void => {
+    getUserStream(videoInput, audioInput)
+      .then(startUserMedia)
+      .then(fillInputOptions)
       .catch((error: Error) => console.log(error));
   };
 
-  private updateCurrentVideoInput = (
-    event: ChangeEvent<HTMLSelectElement>
-  ): void => {
-    this.setState({ videoInput: event.target.value }, this.loadMedia);
+  const startUserMedia = (mediaStream: MediaStream): void => {
+    if (localVideoRef.current) {
+      localVideoRef.current.srcObject = mediaStream;
+      streamRef.current = mediaStream;
+    }
   };
 
-  private updateCurrentAudioInput = (
+  const updateCurrentVideoInput = (
     event: ChangeEvent<HTMLSelectElement>
   ): void => {
-    if (this.state.stream)
-      this.state.stream.getAudioTracks().forEach(track => track.stop());
-    this.setState({ audioInput: event.target.value }, this.loadMedia);
+    setVideoInput(event.target.value);
+    loadMedia();
   };
 
-  private updateCurrentAudioOutput = (
+  const updateCurrentAudioInput = (
     event: ChangeEvent<HTMLSelectElement>
   ): void => {
-    if (this.videoRef.current) {
+    if (streamRef.current)
+      streamRef.current.getAudioTracks().forEach(track => track.stop());
+    setAudioInput(event.target.value);
+    loadMedia();
+  };
+
+  const updateCurrentAudioOutput = (
+    event: ChangeEvent<HTMLSelectElement>
+  ): void => {
+    if (localVideoRef.current) {
       try {
-        this.videoRef.current.setSinkId(event.target.value);
+        localVideoRef.current.setSinkId(event.target.value);
       } catch (error) {
         console.warn("Browser does not support output device selection.");
       }
     }
-    this.setState({ audioOutput: event.target.value }, this.loadMedia);
+    setAudioOutput(event.target.value);
+    loadMedia();
   };
 
-  private toogleMicrophone = (): void => {
-    if (this.state.stream) {
-      this.state.stream
+  const toogleMicrophone = (): void => {
+    if (streamRef.current) {
+      streamRef.current
         .getAudioTracks()
         .forEach(track => (track.enabled = !track.enabled));
     }
   };
-  private toogleVideo = (): void => {
-    if (this.state.stream) {
-      this.state.stream
+
+  const toogleVideo = (): void => {
+    if (streamRef.current) {
+      streamRef.current
         .getVideoTracks()
         .forEach(track => (track.enabled = !track.enabled));
     }
   };
 
-  private startUserMedia = (mediaStream: MediaStream): void => {
-    if (this.videoRef.current) {
-      this.videoRef.current.srcObject = mediaStream;
-      this.setState({ stream: mediaStream });
-    }
-  };
-
-  private fillInputOptions = async (): Promise<void> => {
+  const fillInputOptions = async (): Promise<void> => {
     const devices = await getUserDevices();
-    this.setState(state => ({
-      videoInputs: [],
-      audioInputs: [],
-      audioOutputs: []
-    }));
 
     devices.forEach((deviceInfo: MediaDeviceInfo) => {
       const deviceOption = {
@@ -105,81 +96,70 @@ export class WaitingPage extends Component<{}, WaitingPageModel> {
       };
 
       if (deviceInfo.kind === "videoinput") {
-        this.setState(state => ({
-          videoInputs: [...state.videoInputs, deviceOption]
-        }));
+        setVideoInputs([...videoInputs, deviceOption]);
       }
 
       if (deviceInfo.kind === "audioinput") {
-        this.setState(state => ({
-          audioInputs: [...state.audioInputs, deviceOption]
-        }));
+        setAudioInputs([...audioInputs, deviceOption]);
       }
 
       if (deviceInfo.kind === "audiooutput") {
-        this.setState(state => ({
-          audioOutputs: [...state.audioOutputs, deviceOption]
-        }));
+        setAudioOutputs([...audioOutputs, deviceOption]);
       }
     });
   };
 
-  render = (): JSX.Element => {
-    return (
-      <div>
-        <h1 className={styles["title"]}>Choose your video and audio options</h1>
+  return (
+    <div>
+      <h1 className={styles["title"]}>Choose your video and audio options</h1>
 
-        <div className={styles["line"]}></div>
+      <div className={styles["line"]}></div>
 
-        <Container>
-          <Row>
-            <Col sm={8}>
-              <video
-                ref={this.videoRef}
-                className={styles["video"]}
-                playsInline
-                autoPlay
-              ></video>
-              <div className={styles["bar-options"]}>
-                <button
-                  className={styles["btn"]}
-                  onClick={this.toogleMicrophone}
-                >
-                  <FontAwesomeIcon icon={solid("microphone")} />
-                </button>
-                <button className={styles["btn"]} onClick={this.toogleVideo}>
-                  <FontAwesomeIcon icon={solid("camera")} />
-                </button>
-              </div>
-            </Col>
-            <Col sm={4}>
-              {this.state.videoInputs.length > 0 && (
-                <SelectComponent
-                  label="Camera"
-                  className={styles["select-component"]}
-                  value={this.state.videoInput}
-                  options={this.state.videoInputs}
-                  onChange={this.updateCurrentVideoInput}
-                ></SelectComponent>
-              )}
+      <Container>
+        <Row>
+          <Col sm={8}>
+            <video
+              ref={localVideoRef}
+              className={styles["video"]}
+              playsInline
+              autoPlay
+            ></video>
+            <div className={styles["bar-options"]}>
+              <button className={styles["btn"]} onClick={toogleMicrophone}>
+                <FontAwesomeIcon icon={solid("microphone")} />
+              </button>
+              <button className={styles["btn"]} onClick={toogleVideo}>
+                <FontAwesomeIcon icon={solid("camera")} />
+              </button>
+            </div>
+          </Col>
+          <Col sm={4}>
+            {videoInputs.length > 0 && (
               <SelectComponent
-                label="Speaker"
+                label="Camera"
                 className={styles["select-component"]}
-                value={this.state.audioOutput}
-                options={this.state.audioOutputs}
-                onChange={this.updateCurrentAudioOutput}
+                value={videoInput}
+                options={videoInputs}
+                onChange={updateCurrentVideoInput}
               ></SelectComponent>
-              <SelectComponent
-                label="Microphone"
-                className={styles["select-component"]}
-                value={this.state.audioInput}
-                options={this.state.audioInputs}
-                onChange={this.updateCurrentAudioInput}
-              ></SelectComponent>
-            </Col>
-          </Row>
-        </Container>
-      </div>
-    );
-  };
-}
+            )}
+            <SelectComponent
+              label="Speaker"
+              className={styles["select-component"]}
+              value={audioOutput}
+              options={audioOutputs}
+              onChange={updateCurrentAudioOutput}
+            ></SelectComponent>
+            <SelectComponent
+              label="Microphone"
+              className={styles["select-component"]}
+              value={audioInput}
+              options={audioInputs}
+              onChange={updateCurrentAudioInput}
+            ></SelectComponent>
+          </Col>
+        </Row>
+      </Container>
+    </div>
+  );
+};
