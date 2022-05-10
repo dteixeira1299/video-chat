@@ -9,12 +9,7 @@ class WebSocket extends SocketServer {
   private static io: WebSocket;
 
   constructor(httpServer?: Server) {
-    super(httpServer, {
-      cors: {
-        origin: "https://grupo2.ipmaia",
-        methods: ["GET", "POST"],
-      },
-    });
+    super(httpServer);
   }
 
   public static getInstance(httpServer?: Server): WebSocket {
