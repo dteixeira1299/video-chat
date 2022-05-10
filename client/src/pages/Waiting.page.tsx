@@ -7,12 +7,15 @@ import { solid } from "@fortawesome/fontawesome-svg-core/import.macro";
 import styles from "../styles/Call.module.css";
 import { SelectComponent, SelectOption } from "../components/Select.component";
 import { getUserDevices, getUserStream } from "../utils/devices";
+import { useNavigate, useParams } from "react-router-dom";
+import { getSessionStorageOrDefault } from "../utils/session-storage";
 
 interface HTMLCallElement extends HTMLVideoElement {
   setSinkId(id: string): void;
 }
 
 export const WaitingPage = () => {
+  const { roomId } = useParams();
   const [videoInput, setVideoInput] = useState<string>("");
   const [audioInput, setAudioInput] = useState<string>("");
   const [audioOutput, setAudioOutput] = useState<string>("");
@@ -21,10 +24,26 @@ export const WaitingPage = () => {
   const [audioOutputs, setAudioOutputs] = useState<Array<any>>([]);
   const localVideoRef = useRef<HTMLCallElement>(null);
   const streamRef = useRef<MediaStream>();
+  const navigate = useNavigate();
 
   useEffect(() => {
+    CheckUsername();
+    CheckRoomId();
     loadMedia();
   }, []);
+
+  const CheckUsername = () => {
+    const user = getSessionStorageOrDefault("username", null);
+    if (!user) {
+      navigate("/")
+    }
+  };
+  
+  const CheckRoomId = () => {
+    fetch(process.env.REACT_APP_API_URL + "/calls/" + roomId, {
+      method: "GET"
+    }).catch(() => navigate("/"));
+  };
 
   const loadMedia = (): void => {
     getUserStream(videoInput, audioInput)
