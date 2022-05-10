@@ -23,7 +23,6 @@ export const CallPage = () => {
   useEffect(() => {
     socketRef.current = connect(`${process.env.REACT_APP_API_URL}`);
     peerConnectionRef.current = createNewRTCPeerConnection();
-    console.log(peerConnectionRef.current);
 
     socketRef.current.on("room:joined", async () => {
       if (peerConnectionRef.current && socketRef.current) {
