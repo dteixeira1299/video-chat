@@ -1,6 +1,6 @@
 import React, { useEffect, useState, ChangeEvent } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Container, Row, Col } from "react-bootstrap";
+import { Container, Row, Col, Button } from "react-bootstrap";
 import { useRef } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { solid } from "@fortawesome/fontawesome-svg-core/import.macro";
@@ -128,6 +128,14 @@ export const WaitingPage = () => {
     });
   };
 
+
+  const enterCall = () => {
+    fetch(process.env.REACT_APP_API_URL + "/calls/" + roomId, {
+      method: "GET"
+    })
+      .then(() => navigate("/call/" + roomId))
+  };
+
   return (
     <div>
       <h1 className={styles["title"]}>Choose your video and audio options</h1>
@@ -176,6 +184,13 @@ export const WaitingPage = () => {
               options={audioInputs}
               onChange={updateCurrentAudioInput}
             ></SelectComponent>
+            <Button
+              onClick={enterCall}
+              variant="dark"
+              className="mt-4"
+            >
+              Enter Call
+            </Button>
           </Col>
         </Row>
       </Container>
