@@ -159,7 +159,8 @@ export const CallPage = () => {
           autoPlay
         ></video>
       </div>
-      <div>
+      <video ref={localVideoRef} playsInline autoPlay muted></video>
+      {/* <div>
         <Button
           onClick={toogleAudioInputLocal}
           variant="outline-primary"
@@ -179,7 +180,7 @@ export const CallPage = () => {
         >
           End Call
         </Button>
-      </div>
+      </div> */}
     </div>
   );
 };
