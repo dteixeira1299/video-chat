@@ -6,7 +6,7 @@ export const DatabaseConnection = new DataSource({
   host: "localhost",
   port: 3306,
   username: "root",
-  password: "root",
+  password: "",
   database: "chat",
   synchronize: true,
   entities: [Call],
