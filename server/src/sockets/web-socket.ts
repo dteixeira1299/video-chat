@@ -11,8 +11,11 @@ class WebSocket extends SocketServer {
   constructor(httpServer?: Server) {
     super(httpServer, {
       cors: {
-        origin: "http://localhost:3001",
-        methods: ["GET", "POST"],
+        origin: [
+          "http://localhost:*",
+          "https://localhost:*",
+          "https://grupo2.ipmaia:*",
+        ],
       },
     });
   }
