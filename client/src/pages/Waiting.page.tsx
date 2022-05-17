@@ -38,7 +38,7 @@ export const WaitingPage = () => {
       navigate("/")
     }
   };
-  
+
   const CheckRoomId = () => {
     fetch(process.env.REACT_APP_API_URL + "/calls/" + roomId, {
       method: "GET"
@@ -187,7 +187,7 @@ export const WaitingPage = () => {
             <Button
               onClick={enterCall}
               variant="dark"
-              className="mt-4"
+              className="mt-4 w-100"
             >
               Enter Call
             </Button>
