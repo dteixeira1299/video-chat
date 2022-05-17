@@ -159,7 +159,7 @@ export const CallPage = () => {
           autoPlay
         ></video>
       </div>
-      <video ref={localVideoRef} playsInline autoPlay muted></video>
+      <video className={styles["localVideo"]} ref={localVideoRef} playsInline autoPlay muted></video>
       {/* <div>
         <Button
           onClick={toogleAudioInputLocal}
