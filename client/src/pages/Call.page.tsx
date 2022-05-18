@@ -1,15 +1,14 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Button } from "react-bootstrap";
 import React, { useRef, useEffect } from "react";
 import styles from "../styles/Call.module.css";
 import { useNavigate, useParams } from "react-router-dom";
 import { Socket, connect } from "socket.io-client";
 import { createNewRTCPeerConnection } from "../utils/rtc-connection";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { solid } from "@fortawesome/fontawesome-svg-core/import.macro";
 import {
   getUserStream,
-  HTMLVideoElementWithCaptureStream,
-  toogleAudioInput,
-  toogleVideo
+  HTMLVideoElementWithCaptureStream
 } from "../utils/devices";
 
 export const CallPage = () => {
@@ -158,29 +157,30 @@ export const CallPage = () => {
           playsInline
           autoPlay
         ></video>
+        <div>
+          <button onClick={toogleAudioInputLocal} className="mt-4">
+            <FontAwesomeIcon icon={solid("microphone")} className="fa-lg" />
+          </button>
+          <button onClick={toogleVideoLocal} className="mt-4">
+            <FontAwesomeIcon icon={solid("camera")} className="fa-lg" />
+          </button>
+          <button
+            onClick={() => {
+              navigate("/");
+            }}
+            className="mt-4"
+          >
+            <FontAwesomeIcon icon={solid("phone")} className="fa-lg" />
+          </button>
+        </div>
       </div>
-      <video className={styles["localVideo"]} ref={localVideoRef} playsInline autoPlay muted></video>
-      {/* <div>
-        <Button
-          onClick={toogleAudioInputLocal}
-          variant="outline-primary"
-          className="mt-4"
-        >
-          Disable Mic
-        </Button>
-        <Button onClick={toogleVideoLocal} variant="dark" className="mt-4">
-          Disable Cam
-        </Button>
-        <Button
-          onClick={() => {
-            navigate("/");
-          }}
-          variant="dark"
-          className="mt-4"
-        >
-          End Call
-        </Button>
-      </div> */}
+      <video
+        className={styles["localVideo"]}
+        ref={localVideoRef}
+        playsInline
+        autoPlay
+        muted
+      ></video>
     </div>
   );
 };
